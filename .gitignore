@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Virtual environment
+.venv/
+venv/
+
+# Database
+*.db
+
+# Angular / Node
+frontend/node_modules/
+frontend/dist/
+.angular/
+
+# Environment
+.env
+
+# IDE
+.idea/
+.vscode/
