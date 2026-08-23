@@ -1,0 +1,56 @@
+<main>
+  <header>
+    <h1>Histórico</h1>
+
+    <a routerLink="/">
+      ← Voltar para Focus
+    </a>
+  </header>
+
+  <section>
+    <h2>Hoje — {{ currentDate }}</h2>
+
+    <p>Total de sessões: {{ todaySessions.length }}</p>
+
+    <div class="session-list">
+
+      @for (session of todaySessions; track session.id) {
+
+      <article class="session-card">
+
+        <div>
+          @if (session.task_type === 'faculdade') {
+          <span>🎓 Faculdade</span>
+          } @else {
+          <span>💻 Projeto / Estudo</span>
+          }
+
+          <h2>{{ session.task_title }}</h2>
+
+          @if (session.activity_tag) {
+          <span>
+                {{ session.activity_tag }}
+              </span>
+          }
+        </div>
+
+        <div class="session-info">
+          <p>
+            {{ formatTime(session.started_at) }}
+            -
+            {{ session.ended_at ? formatTime(session.ended_at) : 'Em andamento' }}
+          </p>
+
+          <strong>
+            {{ formatDuration(session.duration_seconds) }}
+          </strong>
+        </div>
+
+      </article>
+
+      }
+
+    </div>
+
+  </section>
+</main>
