@@ -110,7 +110,6 @@ def start_task(task_id: int):
 
     now = datetime.now()
 
-    # Procura uma sessão que ainda não foi finalizada
     cursor.execute("""
         SELECT * FROM focus_sessions
         WHERE ended_at IS NULL
@@ -118,9 +117,12 @@ def start_task(task_id: int):
 
     active_session = cursor.fetchone()
 
-    # Se existir uma sessão ativa, finaliza ela
+    finished_task_id = None
+
     if active_session:
-        started_at = datetime.fromisoformat(active_session["started_at"])
+        started_at = datetime.fromisoformat(
+            active_session["started_at"]
+        )
 
         duration_seconds = int(
             (now - started_at).total_seconds()
@@ -136,7 +138,8 @@ def start_task(task_id: int):
             active_session["id"]
         ))
 
-    # Cria uma nova sessão
+        finished_task_id = active_session["task_id"]
+
     cursor.execute("""
         INSERT INTO focus_sessions (
             task_id,
@@ -157,6 +160,7 @@ def start_task(task_id: int):
     return {
         "id": session_id,
         "task_id": task_id,
+        "finished_task_id": finished_task_id,
         "message": "Focus session started"
     }
 
@@ -211,3 +215,34 @@ def finish_task(task_id: int):
         "duration_seconds": duration_seconds,
         "message": "Focus session finished"
     }
+
+@app.get("/sessions")
+def get_sessions():
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        SELECT
+            focus_sessions.id,
+            focus_sessions.task_id,
+            focus_sessions.started_at,
+            focus_sessions.ended_at,
+            focus_sessions.duration_seconds,
+
+            tasks.title AS task_title,
+            tasks.type AS task_type,
+            tasks.activity_tag
+
+        FROM focus_sessions
+
+        JOIN tasks
+            ON focus_sessions.task_id = tasks.id
+
+        ORDER BY focus_sessions.started_at DESC
+    """)
+
+    sessions = cursor.fetchall()
+
+    connection.close()
+
+    return [dict(session) for session in sessions]
