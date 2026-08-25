@@ -105,3 +105,28 @@ button {
 .finish-button {
   min-width: 120px;
 }
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.history-button {
+  display: inline-flex;
+  align-items: center;
+
+  padding: 10px 16px;
+
+  border: 1px solid #ddd;
+  border-radius: 8px;
+
+  text-decoration: none;
+  color: inherit;
+
+  transition: 0.2s;
+}
+
+.history-button:hover {
+  background: #f5f5f5;
+}

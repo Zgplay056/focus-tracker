@@ -2,19 +2,52 @@
   <header>
     <h1>Histórico</h1>
 
-    <a routerLink="/">
+    <a routerLink="/"
+       class="history-button"
+    >
       ← Voltar para Focus
     </a>
   </header>
 
   <section>
-    <h2>Hoje — {{ currentDate }}</h2>
+<div class="date-navigation">
+  <button (click)="previousDay()">←</button>
 
-    <p>Total de sessões: {{ todaySessions.length }}</p>
+  <h2>{{ formatSelectedDate() }}</h2>
+
+  <button (click)="nextDay()">→</button>
+</div>
+
+<button
+  class="add-session-button"
+  (click)="showSessionForm = !showSessionForm"
+>
+  + Registrar tempo
+</button>
+
+<div class="daily-summary">
+
+  <div class="summary-item">
+    <span class="summary-label">Sessões</span>
+
+    <strong class="summary-value">
+      {{ filteredSessions.length }}
+    </strong>
+  </div>
+
+  <div class="summary-item">
+    <span class="summary-label">Tempo total</span>
+
+    <strong class="summary-value">
+      {{ formatDuration(getTotalDuration()) }}
+    </strong>
+  </div>
+
+</div>
 
     <div class="session-list">
 
-      @for (session of todaySessions; track session.id) {
+      @for (session of filteredSessions; track session.id) {
 
       <article class="session-card">
 

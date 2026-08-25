@@ -22,7 +22,8 @@ interface FocusSession {
 
 export class History implements OnInit {
   sessions: FocusSession[] = [];
-  todaySessions: FocusSession[] = [];
+  filteredSessions: FocusSession[] = [];
+  selectedDate = new Date();
 
  constructor(
   private http: HttpClient,
@@ -30,6 +31,7 @@ export class History implements OnInit {
 ) {}
 
   currentDate = '';
+  showSessionForm = false;
 
   ngOnInit() {
     this.setCurrentDate();
@@ -47,14 +49,14 @@ export class History implements OnInit {
     .get<FocusSession[]>('http://127.0.0.1:8000/sessions')
     .subscribe({
       next: (sessions) => {
-        console.log('Sessões recebidas:', sessions);
+  console.log('Sessões recebidas:', sessions);
 
-        this.sessions = sessions;
+  this.sessions = sessions;
 
-        this.filterTodaySessions();
+  this.filterSessionsByDate();
 
-        this.cdr.detectChanges();
-      },
+  this.cdr.detectChanges();
+},
       error: (error) => {
         console.error('Erro ao carregar sessões:', error);
       }
@@ -90,18 +92,58 @@ export class History implements OnInit {
   return `${remainingSeconds} segundos`;
 }
 
-  filterTodaySessions() {
-  const today = new Date();
-
-  this.todaySessions = this.sessions.filter((session) => {
+  filterSessionsByDate() {
+  this.filteredSessions = this.sessions.filter((session) => {
     const sessionDate = new Date(session.started_at);
 
     return (
-      sessionDate.getFullYear() === today.getFullYear() &&
-      sessionDate.getMonth() === today.getMonth() &&
-      sessionDate.getDate() === today.getDate()
+      sessionDate.getFullYear() === this.selectedDate.getFullYear() &&
+      sessionDate.getMonth() === this.selectedDate.getMonth() &&
+      sessionDate.getDate() === this.selectedDate.getDate()
     );
   });
 }
 
+  previousDay() {
+  this.selectedDate.setDate(
+    this.selectedDate.getDate() - 1
+  );
+
+  this.filterSessionsByDate();
+
+  this.cdr.detectChanges();
 }
+
+ nextDay() {
+  const today = new Date();
+
+  const nextDate = new Date(this.selectedDate);
+
+  nextDate.setDate(
+    nextDate.getDate() + 1
+  );
+
+  // Não permite avançar para o futuro
+  if (nextDate <= today) {
+    this.selectedDate = nextDate;
+
+    this.filterSessionsByDate();
+
+    this.cdr.detectChanges();
+  }
+}
+
+  formatSelectedDate(): string {
+    return this.selectedDate.toLocaleDateString(
+      'pt-BR'
+    );
+}
+
+  getTotalDuration(): number {
+  return this.filteredSessions.reduce(
+    (total, session) => total + (session.duration_seconds ?? 0),
+    0
+  );
+}
+
+} //class ends here
